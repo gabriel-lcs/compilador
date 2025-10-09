@@ -1,0 +1,161 @@
+#main.py
+from Repl import *
+
+def prompt():
+  Repl().cmdloop()
+
+def test(w):
+  Repl().analisador(w)
+
+if __name__ == "__main__":
+  prompt()
+
+
+
+#Repl.py
+from Lexer import Lexer
+from cmd import Cmd
+
+class Repl(Cmd):
+    prompt = 'UFC> '
+    intro = "Bem vindo!\nDigite\n :h para ajuda\n :q para sair e imprimir o assembly\n :s para um exemplo!"
+
+    def do_exit(self, inp):
+        return True
+    def help_exit(self):
+        print('Digite\n :q para sair\n :s para um exemplo!')
+        return False
+    def emptyline(self): # Disabilita repeticao do ultimo comando
+        pass
+
+    def do_s(self):
+        print("Samples:")
+        print('    1+3*8*(1+2)')
+        #print('    let num = 10')
+        #print('    num^2')
+        #print('    (num+1)*2')
+        #print('    let ufc = \"ufc\"')
+        #print('    ufc + \"-2025\"')
+
+    def default(self, linha): # cada linha do prompty cai aqui
+        if linha == ':q':
+            return self.do_exit(linha)
+        elif linha == ':h':
+            return self.help_exit()
+        elif linha == ':s':
+            return self.do_s()
+
+        # Gerar tokens
+        print(f'Linha digitada: {linha}')
+
+        #lexer = Lexer(linha)
+        #tokens, error = lexer.makeTokens()
+        #if error:
+        #    print(f'Log de Erro: {error.printMsg()}')
+
+        #print(f'Lexer: {tokens}')
+
+        return False
+
+    do_EOF = do_exit
+    help_EOF = help_exit
+
+
+
+#Error.py
+class Error:
+    runTimeError = "RunTime Error"
+    parserError = "Parser Error"
+    lexerError = "Lexer Error"
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __repr__(self):
+        return f'({self.msg})'
+
+    def printMsg(self):
+        return self
+
+
+#Consts.py
+import string
+class Consts:
+    DIGITOS = '0123456789'
+    LETRAS = string.ascii_letters
+    LETRAS_DIGITOS = DIGITOS + LETRAS
+    UNDER = '_'
+    INT       = 'INT'
+    FLOAT     = 'FLOAT'
+    PLUS      = '+'
+    MINUS     = '-'
+    MUL       = '*'
+    DIV       = '/'
+    LPAR      = '('
+    RPAR      = ')'
+    EOF       = '$EOF'
+    EQ        = '='
+    POW       = '^'
+    ID	      = 'ID'
+    KEY		  = 'KEY'
+    NULL      = 'null'
+    STRING    = "STRING"
+    LSQUARE   = "[" # Left  Box brackets [
+    RSQUARE   = "]" # Right Box brackets ]
+    COMMA      = ","
+
+    # Exemplos de Palavras reservadas
+    LET         = 'let'
+    IF          = 'if'
+    WHILE       = 'while'
+    FOR         = 'for'
+    KEYS = [
+        LET,
+        IF,
+        WHILE,
+        FOR
+    ]
+
+
+#Token.py
+####################################### TOKENS #######################################
+class Token:
+    def __init__(self, tipo, valor=None):
+        self.type = tipo
+        self.value = valor
+
+    def matches(self, _type, _value):
+        return self.type == _type and self.value == _value
+
+    def __repr__(self):
+        if self.value: return f'{self.type}:{self.value}'
+        return f'{self.type}'
+
+
+
+#Lexer.py
+from Consts import Consts
+from Token import Token
+from Error import Error
+class Lexer:
+    def __init__(self, source_code):
+        self.code = source_code
+        self.current = None
+        self.indice, self.coluna, self.linha = -1, -1, 0
+        self.__advance()
+
+    def __advance(self):
+        self.__advanceCalc(self.current)
+
+    def __advanceCalc(self, _char=None):
+        return self
+
+    def makeTokens(self):
+        tokens = []
+        while self.current != None:
+            self.current = None
+
+        tokens.append(Token(Consts.EOF))
+        return tokens, None
+
+    def __makeNumber(self):
+        return Token(Consts.FLOAT, float("2025"))
