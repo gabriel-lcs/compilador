@@ -92,8 +92,9 @@ class Lexer:
             self.__advance()
 
         if conta_ponto == 0:
-            return Token(Consts.INT, int(strNum))    
-        return Token(Consts.FLOAT, float(strNum))
+            return Token(Consts.INT, int(strNum))
+        else:    
+            return Token(Consts.FLOAT, float(strNum))
 
     def __MakeString(self):
         stri = ""

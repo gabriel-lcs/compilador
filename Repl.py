@@ -1,5 +1,6 @@
 from Lexer import Lexer
 from cmd import Cmd
+from recursivo_desc import RecDescendente
 
 class Repl(Cmd):
     prompt = 'UFC - Gabriel> '
@@ -21,6 +22,7 @@ class Repl(Cmd):
         #print('    (num+1)*2')
         #print('    let ufc = \"ufc\"')
         #print('    ufc + \"-2025\"')
+        return False
 
     def default(self, linha): # cada linha do prompty cai aqui
         if linha == ':q':
@@ -29,18 +31,38 @@ class Repl(Cmd):
             return self.help_exit()
         elif linha == ':s':
             return self.do_s()
-
-        # Gerar tokens
+    
         print(f'Linha digitada: {linha}')
-
-        lexer = Lexer(linha)
-        tokens, error = lexer.makeTokens()
-        if error:
-            print(f'Log de Erro: {error.printMsg()}')
-
-        print(f'Lexer: {tokens}')
-
+        self.analisador(linha)
+        
         return False
 
     do_EOF = do_exit
     help_EOF = help_exit
+
+    def run(self, linha):
+        # Gerar tokens
+        lexer = Lexer(linha)
+        tokens, error = lexer.makeTokens()
+        if error:
+            print(error)
+            return None, error
+        print(f'Lexer: {tokens}')
+
+        # Gerar AST
+        #astInfo = Parser.instance().Parsing(tokens)
+        #semanticNode, error = astInfo.node, astInfo.error
+
+        #if error or not isinstance(semanticNode, Visitor):
+        #    return None, error
+        #print(f'Parser: {semanticNode}')
+        parser = RecDescendente(tokens)
+        semanticNode, error = parser.start()
+        return semanticNode, error
+        #return tokens, error
+
+    def analisador(self, linha):
+        resultado, error = self.run(linha)
+        if error:
+            print(f'Log de Erro: {error}')
+        else: print(f'{resultado}')
