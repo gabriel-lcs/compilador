@@ -44,6 +44,13 @@ class Parser:
 		if Parser.singleton==None:
 			Parser.singleton = Parser()
 		return Parser.singleton
+	
+	##############################
+	def Lookahead(self, nEsimo: int): # If index out of bound, make EOF (last) as default
+		idxNEsimo = self.tokIdx + nEsimo
+		maxSize = len(self.tokens)
+		return self.tokens[idxNEsimo if idxNEsimo < maxSize else maxSize - 1]
+	##############################
 
 class AstInfo:
 	singleton = None

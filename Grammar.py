@@ -7,7 +7,7 @@ class Grammar:
         self.parser = parser
 
     def Rule(self):
-        return self.GetParserManager().fail(f"{Error.parserError}: Implementar suas regras de producao (Heranca de Grammar)!")
+        return self.GetParserManager().fail(f"{Error.parserError}: Implementar suas regras de astoducao (Heranca de Grammar)!")
 
     def CurrentToken(self):
         return self.parser.CurrentTok()
@@ -26,11 +26,38 @@ class Grammar:
 
 class Exp(Grammar): # A variable from Grammar G
     def Rule(self):
-        pr = self.GetParserManager() # <Term> ((MINUS | PLUS) <Term>)*
-        node = pr.registry(NoOpBinaria.Perform(Term(self.parser), (Consts.PLUS, Consts.MINUS)))
-        if pr.error:
-            return pr.fail(f"{Error.parserError}: Esperado a '{Consts.INT}', '{Consts.FLOAT}', '{Consts.PLUS}', '{Consts.MINUS}', '{Consts.LPAR}'")
-        return pr.success(node)
+        ast = self.GetParserManager() # <Term> ((MINUS | PLUS) <Term>)*
+
+        #################################################################
+        if self.CurrentToken().matches(Consts.KEY, Consts.LET): #EX: let a = 1
+            self.NextToken()
+            if self.CurrentToken().type != Consts.ID:
+                return ast.fail(f"{Error.parserError}: Esperado '{Consts.ID}'")
+            varName = self.CurrentToken()
+            self.NextToken()
+            if self.CurrentToken().type != Consts.EQ:
+                return ast.fail(f"{Error.parserError}: Esperado '{Consts.EQ}'")
+            return self.varAssign(ast, varName)
+
+        if (self.CurrentToken().type == Consts.ID): #EX: a = 1
+            if (self.parser.Lookahead(1).type == Consts.EQ):
+                varName = self.CurrentToken()
+                self.NextToken()
+                return self.varAssign(ast, varName)
+        #################################################################
+
+        node = ast.registry(NoOpBinaria.Perform(Term(self.parser), (Consts.PLUS, Consts.MINUS)))
+        if ast.error:
+            return ast.fail(f"{Error.parserError}: Esperado a '{Consts.INT}', '{Consts.FLOAT}', '{Consts.PLUS}', '{Consts.MINUS}', '{Consts.LPAR}'")
+        return ast.success(node)
+    
+    #################################################################
+    def varAssign(self, ast, varName):
+        self.NextToken()
+        exast = ast.registry(Exp(self.parser).Rule())
+        if ast.error: return ast
+        return ast.success(NoVarAssign(varName, exast))
+    #################################################################
 
 class Term(Grammar): # A variable from Grammar G
     def Rule(self): # <Factor> ((MUL | DIV) <Factor>)*
@@ -47,6 +74,15 @@ class Atom(Grammar): # A variable from Grammar G
         if tok.type in (Consts.INT, Consts.FLOAT):
             self.NextToken()
             return ast.success(NoNumber(tok))
+
+        ###################################################
+        elif tok.type == Consts.ID:
+            self.NextToken()
+            return ast.success(NoVarAccess(tok))
+        elif tok.type == Consts.STRING:
+            self.NextToken()
+            return ast.success(NoString(tok))
+        ###################################################
 
         elif tok.type == Consts.LPAR:
             self.NextToken()

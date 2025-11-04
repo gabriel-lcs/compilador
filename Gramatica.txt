@@ -1,4 +1,5 @@
 <Exp> ::= <Term> ((MINUS | PLUS) <Term>)*
+<Exp> ::= [let] ID EQ <Exp>
 <Term> ::= <Factor> ((MUL | DIV) <Factor>)*
 <Factor> ::= (PLUS | MINUS)* <Factor>
 <Factor> ::= <Atom>

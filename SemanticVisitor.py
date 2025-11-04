@@ -35,9 +35,32 @@ class NoOpBinaria:
 			op_bin_ou_esq = NoOpBinaria(op_bin_ou_esq, token_operador, lado_direito)
 		return ast.success(op_bin_ou_esq)
 
-#class NoOpUnaria:
-#	def __init__(self, opTok, node):
-#		self.opTok = opTok
-#		self.node = node
-#	def __repr__(self):
-#		return f'({self.opTok}, {self.node})'
+class NoOpUnaria:
+	def __init__(self, opTok, node):
+		self.opTok = opTok
+		self.node = node
+	def __repr__(self):
+		return f'({self.opTok}, {self.node})'
+
+##############################
+class NoString:
+	def __init__(self, tok):
+		self.tok = tok
+
+	def __repr__(self):
+		return f'{self.tok}'
+class NoVarAssign:
+	def __init__(self, varNameTok, valueNode):
+		self.varNameTok = varNameTok
+		self.valueNode = valueNode
+
+	def __repr__(self):
+		return f'({self.varNameTok}, {self.valueNode})'
+
+class NoVarAccess:
+	def __init__(self, varNameTok):
+		self.varNameTok = varNameTok
+
+	def __repr__(self):
+		return f'({self.varNameTok})'
+##############################
