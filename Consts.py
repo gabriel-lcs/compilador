@@ -1,4 +1,5 @@
 import string
+
 class Consts:
     DIGITOS = '0123456789'
     LETRAS = string.ascii_letters

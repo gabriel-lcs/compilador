@@ -1,9 +1,11 @@
+<Exp> ::= [LET] ID EQ <Exp>
 <Exp> ::= <Term> ((MINUS | PLUS) <Term>)*
-<Exp> ::= [let] ID EQ <Exp>
 <Term> ::= <Factor> ((MUL | DIV) <Factor>)*
 <Factor> ::= (PLUS | MINUS)* <Factor>
+<Factor> ::= <Pow>
 <Factor> ::= <Atom>
-<Atom> ::= INT | FLOAT | LPAR <Exp> RPAR
+<Pow> ::= <Atom> (POW <Pow>)*
+<Atom> ::= INT | FLOAT | STRING | ID | LPAR <Exp> RPAR
 
 PLUS é o +
 MUL é o *

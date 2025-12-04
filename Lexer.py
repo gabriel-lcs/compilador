@@ -39,6 +39,8 @@ class Lexer:
                 tokens.append(Token(Consts.MUL))
             elif self.current == Consts.DIV:
                 tokens.append(Token(Consts.DIV))
+            elif self.current == Consts.POW:
+                tokens.append(Token(Consts.POW))
             elif self.current == Consts.LPAR:
                 tokens.append(Token(Consts.LPAR))
             elif self.current == Consts.RPAR:
@@ -118,7 +120,6 @@ class Lexer:
 
         return Token(Consts.STRING, stri)
     
-    ##############################
     def __makeId(self):
         lexema = ''
         while self.current != None and self.current in Consts.LETRAS_DIGITOS + Consts.UNDER:
@@ -127,4 +128,4 @@ class Lexer:
 
         tokType = Consts.KEY if lexema in Consts.KEYS else Consts.ID
         return Token(tokType, lexema)
-    ##############################
+

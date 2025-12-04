@@ -28,7 +28,6 @@ class Exp(Grammar): # A variable from Grammar G
     def Rule(self):
         ast = self.GetParserManager() # <Term> ((MINUS | PLUS) <Term>)*
 
-        #################################################################
         if self.CurrentToken().matches(Consts.KEY, Consts.LET): #EX: let a = 1
             self.NextToken()
             if self.CurrentToken().type != Consts.ID:
@@ -44,20 +43,17 @@ class Exp(Grammar): # A variable from Grammar G
                 varName = self.CurrentToken()
                 self.NextToken()
                 return self.varAssign(ast, varName)
-        #################################################################
 
         node = ast.registry(NoOpBinaria.Perform(Term(self.parser), (Consts.PLUS, Consts.MINUS)))
         if ast.error:
             return ast.fail(f"{Error.parserError}: Esperado a '{Consts.INT}', '{Consts.FLOAT}', '{Consts.PLUS}', '{Consts.MINUS}', '{Consts.LPAR}'")
         return ast.success(node)
     
-    #################################################################
     def varAssign(self, ast, varName):
         self.NextToken()
         exast = ast.registry(Exp(self.parser).Rule())
         if ast.error: return ast
         return ast.success(NoVarAssign(varName, exast))
-    #################################################################
 
 class Term(Grammar): # A variable from Grammar G
     def Rule(self): # <Factor> ((MUL | DIV) <Factor>)*
@@ -65,7 +61,31 @@ class Term(Grammar): # A variable from Grammar G
 
 class Factor(Grammar): # A variable from Grammar G
     def Rule(self):
-        return Atom(self.parser).Rule() # <Atom>
+        ast = self.GetParserManager()
+        tok = self.CurrentToken()
+
+        if tok.type in (Consts.PLUS, Consts.MINUS):
+            self.NextToken()
+            factor = ast.registry(Factor(self.parser).Rule())
+            if ast.error: return ast
+            return ast.success(NoOpUnaria(tok, factor))
+        return Pow(self.parser).Rule()
+    
+class Pow(Grammar):
+    def Rule(self):
+        """#EX_Pow:
+        ast = self.GetParserManager()
+        node = ast.registry(Atom(self.parser).Rule())
+        if ast.error: return ast
+
+        while self.CurrentToken().type in (Consts.POW): #operacao binária
+            operador = self.CurrentToken()
+            self.NextToken()
+            direito = ast.registry(Pow(self.parser).Rule())
+            node = NoOpBinaria(node, operador, direito)
+        return ast.success(node)
+        """
+        return NoOpBinaria.Perform(Atom(self.parser), (Consts.POW, ), Pow(self.parser)) # Faz o mesmo que EX_Pow
 
 class Atom(Grammar): # A variable from Grammar G
     def Rule(self): # <Atom> ::= INT | FLOAT | LPAR <Exp> RPAR
@@ -74,16 +94,12 @@ class Atom(Grammar): # A variable from Grammar G
         if tok.type in (Consts.INT, Consts.FLOAT):
             self.NextToken()
             return ast.success(NoNumber(tok))
-
-        ###################################################
         elif tok.type == Consts.ID:
             self.NextToken()
             return ast.success(NoVarAccess(tok))
         elif tok.type == Consts.STRING:
             self.NextToken()
             return ast.success(NoString(tok))
-        ###################################################
-
         elif tok.type == Consts.LPAR:
             self.NextToken()
             exp = ast.registry(Exp(self.parser).Rule())

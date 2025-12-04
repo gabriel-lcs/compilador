@@ -1,6 +1,7 @@
 from Lexer import Lexer
 from cmd import Cmd
 from Parser import Parser
+from CodeGEN import CodeGEN
 
 class Repl(Cmd):
     prompt = 'UFC - Gabriel> '
@@ -32,7 +33,7 @@ class Repl(Cmd):
         elif linha == ':s':
             return self.do_s()
     
-        print(f'Linha digitada: {linha}')
+        #print(f'Linha digitada: {linha}')
         self.analisador(linha)
         
         return False
@@ -62,7 +63,14 @@ class Repl(Cmd):
         #parser = RecDescendente(tokens)
         #semanticNode, error = parser.start()
 
-        return semanticNode, error
+        #return semanticNode, error
+
+        # Semantica de tipos para tratar valores na AST (Abstract Syntax Tree), bem como RunTime ou Geracao de Codigo
+        generate = CodeGEN()
+        managerRT = generate.run(semanticNode) 
+        # Aqui chamamos o visit do node da AST, passando o operador de memoria
+        return managerRT.value, managerRT.error
+        ############################## return semanticNode, error
 
     def analisador(self, linha):
         resultado, error = self.run(linha)
